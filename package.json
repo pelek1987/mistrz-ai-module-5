@@ -1,5 +1,6 @@
 {
   "name": "module-5",
+  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,8 +8,8 @@
     "node": ">=20.10.0"
   },
   "scripts": {
-    "start": "nodemon src/index.ts",
-    "lint": "eslint src/**/*.ts"
+    "lint": "eslint src/**/*.ts",
+    "start:dev": "env-cmd nodemon --exec tsx src/index.ts"
   },
   "keywords": [],
   "author": "Paweł Sioda <pawel.sioda@gmail.com>",
@@ -23,6 +24,11 @@
     "nodemon": "3.0.3",
     "prettier": "3.2.4",
     "ts-node": "10.9.2",
+    "tsx": "4.7.0",
     "typescript": "5.3.3"
+  },
+  "dependencies": {
+    "env-cmd": "10.1.0",
+    "openai": "4.25.0"
   }
 }
