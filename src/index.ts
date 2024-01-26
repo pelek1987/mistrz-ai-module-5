@@ -1,13 +1,13 @@
-import OpenAI from 'openai';
+import { OpenAiChat } from './open-ai.js';
 
-const openai = new OpenAI({
-    apiKey: process.env['OPENAI_API_KEY']
-});
+const main = async ()  => {
+    const systemMessage = 'Jestem klasyfikatorem sentymentu tekstu podanego przez użytkownika. Sentyment tekstu może być `pozytywny`, `negatywny` lub `neutralny`. Zwracam tylko sentyment pisany małymi literami i nic więcej'
 
-const chatCompletion = await openai.chat.completions.create({
-    messages: [{ role: 'user', content: 'Say this is a test' }],
-    model: 'gpt-3.5-turbo',
-});
+    const chat = new OpenAiChat(systemMessage);
 
-console.log(chatCompletion);
+    const sentiment = await chat.say('Dzisiaj jest piękny dzień');
+    console.log(sentiment);
 
+}
+
+main();
