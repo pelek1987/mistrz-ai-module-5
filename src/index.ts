@@ -1,13 +1,11 @@
-import { OpenAiChat } from './open-ai.js';
+import { getSentiment } from './utils/get-sentiment.js';
 
 const main = async ()  => {
-    const systemMessage = 'Jestem klasyfikatorem sentymentu tekstu podanego przez użytkownika. Sentyment tekstu może być `pozytywny`, `negatywny` lub `neutralny`. Zwracam tylko sentyment pisany małymi literami i nic więcej'
+    const text = 'Mam dwie siostry';
 
-    const chat = new OpenAiChat(systemMessage);
+    const sentiment = await getSentiment(text);
 
-    const sentiment = await chat.say('Dzisiaj jest piękny dzień');
     console.log(sentiment);
-
 }
 
-main();
+await main();
