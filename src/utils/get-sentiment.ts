@@ -1,16 +1,17 @@
 import { OpenAiChat } from '../open-ai.js';
+import { handleCalledFunction } from '../callable-functions.js';
 
 type Sentiment = 'pozytywny' | 'negatywny' | 'neutralny';
 
-export const getSentiment = async (text: string): Promise<Sentiment> => {
-  const systemField = 'Jestem klasyfikatorem sentymentu tekstu podanego przez użytkownika. Sentyment tekstu może być `pozytywny`, `negatywny` lub `neutralny`. Zwracam tylko sentyment pisany małymi literami i nic więcej'
+export const getSentiment = async (text: string): Promise<void> => {
+  const systemField = 'Jestem klasyfikatorem sentymentu tekstu podanego przez użytkownika. Zwracam odpowiedź w formacie JSON, wywołując funkcję.'
 
   const chat = new OpenAiChat(systemField);
 
-  const s = await chat.say(text);
-  if(s === 'pozytywny' || s === 'negatywny' || s === 'neutralny') {
-    return s;
-  } else {
-    throw new Error(`Unexpected sentiment: ${s}`);
+  const answer = await chat.say(text);
+  console.log(answer);
+  if(answer?.functionCall) {
+    const res = handleCalledFunction(answer.functionCall);
+    await chat.say(res, 'function', answer.functionCall.name);
   }
 }
