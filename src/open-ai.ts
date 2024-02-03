@@ -18,16 +18,46 @@ const parameters: ChatCompletionCreateParamsBase = {
   model: 'gpt-4-1106-preview',
   // response_format: {type: 'json_object'},
   functions: [
+    // {
+    //   name: 'AnswerSentiment',
+    //   description: 'Always respond to sentiment questions using this function call',
+    //   parameters: {
+    //     type: 'object',
+    //     properties: {
+    //       sentiment: {
+    //         type: 'string',
+    //         description: 'Sentiment of the text',
+    //         enum: ['positive', 'negative', 'neutral']
+    //       }
+    //     }
+    //   }
+    // },
     {
-      name: 'AnswerSentiment',
-      description: 'Always respond to sentiment questions using this function call',
+      name: 'Geocode',
+      description: 'Change city name or zip code to latitude and longitude',
       parameters: {
         type: 'object',
         properties: {
-          sentiment: {
+          cityNameOrZipCode: {
             type: 'string',
-            description: 'Sentiment of the text',
-            enum: ['positive', 'negative', 'neutral']
+            description: 'City name or its zip code'
+          }
+        }
+      }
+    },
+    {
+      name: 'GetCurrentWeather',
+      description: 'Get current weather information based on given latitude and longitude.',
+      parameters: {
+        type: 'object',
+        properties: {
+          longitude: {
+            type: 'number',
+            description: 'Longitude of the city',
+          },
+          latitude: {
+            type: 'number',
+            description: 'Latitude of the city',
           }
         }
       }
@@ -36,15 +66,17 @@ const parameters: ChatCompletionCreateParamsBase = {
 }
 
 export type ChatResponse = null | {
-  content: string | null;
-  functionCall: ChatCompletionAssistantMessageParam.FunctionCall | null
+  content: null | string;
+  functionCall: null | ChatCompletionAssistantMessageParam.FunctionCall
 }
 
-export const extractFirstChoiceMessage = (message: ChatCompletion): ChatResponse => {
+export const extractFirstChoiceMessage = (message: OpenAI.Chat.Completions.ChatCompletion): ChatResponse => {
   const firstChoice = message?.choices?.[0]?.message
+
   if(!firstChoice) {
     return null
   }
+
   return {
     content: firstChoice.content ?? null,
     functionCall: firstChoice.function_call ?? null
@@ -56,7 +88,7 @@ export class OpenAiChat {
     apiKey: process.env['OPENAI_API_KEY']
   });
 
-  private readonly messages: ChatCompletionMessageParam[];
+  private readonly messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[];
 
   constructor(private system: string) {
     this.messages = [{ role: 'system', content: system }];
@@ -67,8 +99,10 @@ export class OpenAiChat {
     const data  = await this.openai.chat.completions.create({
       ...parameters
       , messages: this.messages
-    }) as ChatCompletion
-    const msg = extractFirstChoiceMessage(data);
+    })
+
+    const msg = extractFirstChoiceMessage(data as ChatCompletion);
+
     if(msg?.content) {
       this.messages.push({ role: 'assistant', content: msg.content });
     }
